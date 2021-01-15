@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.http import HttpResponseRedirect
 from .models import Github
+import requests
 
 # Create your views here.
 
@@ -12,12 +13,24 @@ class GithubDelete(DeleteView):
 
 class GithubCreate(CreateView):
     model = Github
-    fields = 'username'
+    fields = ('username',)
     success_url = '/'
+
+    def find_user(self, username):
+        response = requests.get(f'https://api.github.com/users/{username}')
+        json = response.json()
+        user_obj = {"username": username}
+        user_obj["url"] = json.get('html_url')
+        user_obj["repos"] = json.get('public_repos')
+        return user_obj
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        print('FORM----------------', form)
+        user_info = self.find_user(form.instance.username)
+        self.object.user = self.request.user
+        self.object.url = user_info['url']
+        self.object.repos = user_info['repos']
+        self.object.save()
         return HttpResponseRedirect('/')
 
 
