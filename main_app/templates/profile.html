@@ -1,0 +1,20 @@
+<!-- prettier-ignore -->
+{% extends 'index.html' %}
+{% block content %}
+
+{% if github %}
+    {% for acct in github %}
+<div>
+    <h3>{{ acct.username }}</h3>
+    <p>{{ acct.repos }} Public Repositories</p>
+    {% if acct.url %}
+    <a href="{{ acct.url }}">Visit Github</a>
+    {% endif %}
+</div>
+<!-- prettier-ignore -->
+{% endfor %} 
+{% endif %}
+<hr />
+
+<a href="/">Back</a>
+{% endblock%}
